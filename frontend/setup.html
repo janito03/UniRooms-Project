@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup - UniRoom</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .setup-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #667eea;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .step {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid #667eea;
+    }
+
+    .step h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 10px 0;
+    }
+
+    .btn:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: #27ae60;
+    }
+
+    .btn-success:hover {
+      background: #229954;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    ul {
+      margin: 15px 0 15px 25px;
+    }
+
+    li {
+      margin: 8px 0;
+      color: #666;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="setup-container">
+    <h1>🎓 UniRoom Setup</h1>
+    <p class="subtitle">One-Click Database Setup</p>
+
+    <div class="step">
+      <h3>📋 What This Will Do:</h3>
+      <ul>
+        <li>Create 5 sample rooms (101, 102, 201, 202, Lab-A)</li>
+        <li>Create admin user (username: <strong>admin</strong>, password: <strong>admin123</strong>)</li>
+        <li>Create teacher user (username: <strong>teacher</strong>, password: <strong>teacher123</strong>)</li>
+        <li>Create student user (username: <strong>student</strong>, password: <strong>student123</strong>)</li>
+      </ul>
+    </div>
+
+    <button class="btn" onclick="setupDatabase()">🚀 Setup Database Now!</button>
+
+    <div id="result"></div>
+
+    <div class="step" style="margin-top: 20px;">
+      <h3>After Setup:</h3>
+      <p>1. Close this page</p>
+      <p>2. Open <strong>index.html</strong></p>
+      <p>3. Login with:</p>
+      <ul>
+        <li><strong>Admin:</strong> admin / admin123</li>
+        <li><strong>Teacher:</strong> teacher / teacher123</li>
+        <li><strong>Student:</strong> student / student123</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+
+    async function setupDatabase() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'loading';
+      resultDiv.innerHTML = '⏳ Setting up database... Please wait...';
+
+      try {
+        // Step 1: Create users
+        resultDiv.innerHTML += '<br>📝 Creating users...';
+        
+        await createUser('admin', 'admin@uni.com', 'admin123', 'admin');
+        await createUser('teacher', 'teacher@uni.com', 'teacher123', 'teacher');
+        await createUser('student', 'student@uni.com', 'student123', 'student');
+
+        resultDiv.innerHTML += '<br>✅ Users created!';
+
+        // Step 2: Login as admin to get token
+        resultDiv.innerHTML += '<br>🔑 Logging in as admin...';
+        const loginResponse = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: 'admin', password: 'admin123' })
+        });
+
+        if (!loginResponse.ok) {
+          throw new Error('Admin login failed');
+        }
+
+        const loginData = await loginResponse.json();
+        const token = loginData.token;
+
+        resultDiv.innerHTML += '<br>✅ Logged in!';
+
+        // Step 3: Create rooms
+        resultDiv.innerHTML += '<br>🏛️ Creating rooms...';
+
+        const rooms = [
+          { roomNumber: "101", capacity: 30, type: "normal", features: ["Projector", "Whiteboard"] },
+          { roomNumber: "102", capacity: 25, type: "lab", features: ["Computers", "Projector"] },
+          { roomNumber: "201", capacity: 50, type: "lecture_hall", features: ["Projector", "Sound System"] },
+          { roomNumber: "202", capacity: 15, type: "conference", features: ["TV", "Whiteboard"] },
+          { roomNumber: "Lab-A", capacity: 40, type: "lab", features: ["Computers", "Projector", "AC"] }
+        ];
+
+        for (const room of rooms) {
+          await createRoom(room, token);
+        }
+
+        resultDiv.innerHTML += '<br>✅ Rooms created!';
+
+        // Success!
+        resultDiv.className = 'success';
+        resultDiv.innerHTML = `
+          <h3>🎉 Setup Complete!</h3>
+          <p><strong>✅ 3 users created:</strong></p>
+          <ul>
+            <li>Admin: admin / admin123</li>
+            <li>Teacher: teacher / teacher123</li>
+            <li>Student: student / student123</li>
+          </ul>
+          <p><strong>✅ 5 rooms created:</strong></p>
+          <ul>
+            <li>Room 101 (Normal, 30 people)</li>
+            <li>Room 102 (Lab, 25 people)</li>
+            <li>Room 201 (Lecture Hall, 50 people)</li>
+            <li>Room 202 (Conference, 15 people)</li>
+            <li>Lab-A (Lab, 40 people)</li>
+          </ul>
+          <p style="margin-top: 15px; font-weight: bold; color: #27ae60;">
+            Now you can close this page and login to index.html!
+          </p>
+        `;
+
+        // Add button to go to main app
+        const goButton = document.createElement('button');
+        goButton.className = 'btn btn-success';
+        goButton.textContent = '➡️ Go to Main App';
+        goButton.onclick = () => window.location.href = 'index.html';
+        resultDiv.appendChild(goButton);
+
+      } catch (error) {
+        resultDiv.className = 'error';
+        resultDiv.innerHTML = `
+          <h3>❌ Setup Failed</h3>
+          <p><strong>Error:</strong> ${error.message}</p>
+          <p>Make sure your backend server is running!</p>
+          <p>Run: <code>node server.js</code> in the backend folder</p>
+        `;
+      }
+    }
+
+    async function createUser(username, email, password, role) {
+      try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password, role })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          // If user already exists, that's OK
+          if (error.message.includes('already exists')) {
+            console.log(`User ${username} already exists - skipping`);
+            return;
+          }
+          throw new Error(error.message);
+        }
+      } catch (error) {
+        // If user exists, continue
+        if (error.message.includes('already exists')) {
+          return;
+        }
+        throw error;
+      }
+    }
+
+    async function createRoom(roomData, token) {
+      const response = await fetch(`${API_URL}/rooms`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(roomData)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        // If room already exists, that's OK
+        if (error.message.includes('already exists')) {
+          console.log(`Room ${roomData.roomNumber} already exists - skipping`);
+          return;
+        }
+        throw new Error(error.message);
+      }
+    }
+  </script>
+</body>
+</html>
