@@ -8,7 +8,7 @@ async function showRooms() {
   
   contentArea.innerHTML = `
     <div class="rooms-section">
-      <h2>📅 Available Rooms</h2>
+      <h2> Available Rooms</h2>
       
       <div class="filters">
         <div class="filter-group">
@@ -27,7 +27,7 @@ async function showRooms() {
           <input type="text" id="search-room" placeholder="Room number..." onkeyup="filterRooms()">
         </div>
 
-        <button class="btn btn-primary" onclick="showBookingForm()">➕ New Booking</button>
+        <button class="btn btn-primary" onclick="showBookingForm()">New Booking</button>
       </div>
 
       <div id="rooms-list" class="rooms-grid">
@@ -39,7 +39,7 @@ async function showRooms() {
   await loadRooms();
 }
 
-// Load Rooms from API
+
 async function loadRooms() {
   const roomsList = document.getElementById('rooms-list');
   
@@ -49,7 +49,7 @@ async function loadRooms() {
     if (allRooms.length === 0) {
       roomsList.innerHTML = `
         <div class="info-box">
-          <p>⚠️ No rooms found in database!</p>
+          <p>No rooms found in database!</p>
           <p>Run this command in MongoDB to add test rooms:</p>
           <code style="display: block; margin: 10px 0; padding: 10px; background: #000; color: #0f0;">
 mongosh<br>
@@ -70,7 +70,7 @@ db.rooms.insertMany([<br>
   }
 }
 
-// Display Rooms
+
 function displayRooms(rooms) {
   const roomsList = document.getElementById('rooms-list');
   
@@ -81,7 +81,7 @@ function displayRooms(rooms) {
 
   const roomsHTML = rooms.map(room => `
     <div class="room-card">
-      <h3>🏛️ Room ${room.roomNumber}</h3>
+      <h3>Room ${room.roomNumber}</h3>
       <p><strong>Type:</strong> ${room.type}</p>
       <p><strong>Capacity:</strong> ${room.capacity} people</p>
       <p><strong>Features:</strong> ${room.features.join(', ') || 'None'}</p>
@@ -94,7 +94,7 @@ function displayRooms(rooms) {
   roomsList.innerHTML = roomsHTML;
 }
 
-// Filter Rooms
+
 function filterRooms() {
   const typeFilter = document.getElementById('filter-type').value;
   const searchText = document.getElementById('search-room').value.toLowerCase();
@@ -114,18 +114,18 @@ function filterRooms() {
   displayRooms(filtered);
 }
 
-// Quick Book - Pre-fill room
+
 function quickBook(roomId, roomNumber) {
   showBookingForm(roomId, roomNumber);
 }
 
-// Show Booking Form - FIXED!
+
 function showBookingForm(preselectedRoomId = null, preselectedRoomNumber = '') {
   const contentArea = document.getElementById('content-area');
   
   contentArea.innerHTML = `
     <div class="booking-form-container">
-      <h2>📝 Create New Booking</h2>
+      <h2>Create New Booking</h2>
       
       <form id="booking-form" onsubmit="handleCreateBooking(event)">
         <div class="form-group">
@@ -153,7 +153,7 @@ function showBookingForm(preselectedRoomId = null, preselectedRoomNumber = '') {
         </div>
 
         <div class="user-info-box">
-          ℹ️ <strong>Remember:</strong> Students can book max 2 hours. Teachers can override student bookings.
+          ℹ <strong>Remember:</strong> Students can book max 2 hours. Teachers can override student bookings.
         </div>
 
         <div class="button-group">
@@ -167,15 +167,15 @@ function showBookingForm(preselectedRoomId = null, preselectedRoomNumber = '') {
     </div>
   `;
 
-  // Set default date to today
+
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('booking-date').value = today;
 
-  // Load rooms into dropdown
+ 
   loadRoomsDropdown(preselectedRoomId);
 }
 
-// Load rooms into dropdown
+
 async function loadRoomsDropdown(preselectedId = null) {
   const select = document.getElementById('booking-room-select');
   
@@ -196,7 +196,7 @@ async function loadRoomsDropdown(preselectedId = null) {
   }
 }
 
-// Handle Create Booking - FIXED!
+
 async function handleCreateBooking(event) {
   event.preventDefault();
 
@@ -208,46 +208,63 @@ async function handleCreateBooking(event) {
   const errorDiv = document.getElementById('booking-error');
   const successDiv = document.getElementById('booking-success');
 
-  // Clear previous messages
+
   errorDiv.textContent = '';
   successDiv.textContent = '';
 
-  // Validate room selection
+ 
   if (!roomId) {
     errorDiv.textContent = 'Please select a room!';
     return;
   }
 
-  // Combine date and time
+ 
   const startDateTime = new Date(`${date}T${startTime}`);
   const endDateTime = new Date(`${date}T${endTime}`);
 
-  // Validate times
+
   if (endDateTime <= startDateTime) {
     errorDiv.textContent = 'End time must be after start time!';
     return;
   }
 
-  // Check 2-hour limit for students
+ 
   const user = getCurrentUser();
   if (user.role === 'student') {
     const durationHours = (endDateTime - startDateTime) / (1000 * 60 * 60);
     if (durationHours > 2) {
-      errorDiv.textContent = '⚠️ Students can only book for 2 hours maximum!';
+      errorDiv.textContent = 'Students can only book for 2 hours maximum!';
       return;
     }
   }
 
   try {
-    await API.bookings.create(roomId, startDateTime.toISOString(), endDateTime.toISOString());
+    const result = await API.bookings.create(roomId, startDateTime.toISOString(), endDateTime.toISOString());
     
-    successDiv.textContent = '✅ Booking created successfully!';
+   
+    if (result.overridden) {
+      successDiv.textContent = ` ${result.message}`;
+    } else {
+      successDiv.textContent = ' Booking created successfully!';
+    }
     
-    // Redirect after 1.5 seconds
+   
     setTimeout(() => {
       showMyBookings();
     }, 1500);
   } catch (error) {
-    errorDiv.textContent = `❌ ${error.message}`;
+    
+    if (error.message.includes('already booked')) {
+      if (user.role === 'teacher' || user.role === 'admin') {
+        errorDiv.textContent = ` ${error.message} - Cannot override teacher/admin bookings.`;
+      } else {
+        errorDiv.textContent = ` ${error.message} - Students cannot override bookings.`;
+      }
+    } else if (error.message.includes('official class')) {
+      errorDiv.textContent = ` ${error.message} - Nobody can override official classes!`;
+    } else {
+      errorDiv.textContent = `${error.message}`;
+    }
   }
+
 }

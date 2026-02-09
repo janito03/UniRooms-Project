@@ -17,9 +17,12 @@ function isLoggedIn() {
   return !!getToken();
 }
 
-// Helper: Logout
+
 function logout() {
+ 
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  window.location.href = '/';
+  
+
+  window.location.href = 'index.html';
 }

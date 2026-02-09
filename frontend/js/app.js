@@ -1,22 +1,18 @@
-// Main App Controller
-
-// Run when page loads
 document.addEventListener('DOMContentLoaded', function() {
   initApp();
 });
 
-// Initialize App
 function initApp() {
   if (!isLoggedIn()) {
-    // Show login page
+    
     renderLogin();
   } else {
-    // Show dashboard
+    
     renderDashboard();
   }
 }
 
-// Render Dashboard (placeholder for now)// Render Dashboard
+
 function renderDashboard() {
   const user = getCurrentUser();
   const app = document.getElementById('app');
@@ -32,10 +28,10 @@ function renderDashboard() {
       </nav>
 
       <div class="sidebar">
-        <button class="nav-btn" onclick="showDashboardHome()">🏠 Home</button>
-        <button class="nav-btn" onclick="showRooms()">📅 Rooms & Schedule</button>
-        <button class="nav-btn" onclick="showMyBookings()">📋 My Bookings</button>
-        ${user.role === 'admin' ? '<button class="nav-btn" onclick="showAdminPanel()">⚙️ Admin Panel</button>' : ''}
+        <button class="nav-btn" onclick="showDashboardHome()"> Home</button>
+        <button class="nav-btn" onclick="showRooms()"> Rooms & Schedule</button>
+        <button class="nav-btn" onclick="showMyBookings()"> My Bookings</button>
+        ${user.role === 'admin' ? '<button class="nav-btn" onclick="showAdminPanel()"> Admin Panel</button>' : ''}
       </div>
 
       <div class="main-content">
@@ -68,12 +64,12 @@ function renderDashboard() {
   `;
 }
 
-// Dashboard Home
+
 function showDashboardHome() {
   renderDashboard();
 }
 
-// Get role description
+
 function getRoleDescription(role) {
   const descriptions = {
     student: 'You can browse rooms and create bookings up to 2 hours.',
@@ -83,39 +79,57 @@ function getRoleDescription(role) {
   return descriptions[role] || '';
 }
 
-// Show My Bookings
+
 async function showMyBookings() {
   const contentArea = document.getElementById('content-area');
+  
+  contentArea.innerHTML = `
+    <div class="bookings-section">
+      <h2> My Bookings</h2>
+      <button class="btn btn-primary" onclick="showRooms()" style="margin-bottom: 20px;">
+        Create New Booking
+      </button>
+      <div id="bookings-list"></div>
+    </div>
+  `;
+  
+  const bookingsList = document.getElementById('bookings-list');
   
   try {
     const bookings = await API.bookings.getMyBookings();
     
     if (bookings.length === 0) {
-      contentArea.innerHTML = '<p>You have no bookings yet.</p>';
+      bookingsList.innerHTML = '<p class="info">You have no active bookings.</p>';
       return;
     }
 
-    const bookingsHTML = bookings.map(booking => `
-      <div class="booking-card">
-        <h3>Room ${booking.room_id.roomNumber}</h3>
-        <p>📅 ${new Date(booking.startTime).toLocaleString()}</p>
-        <p>⏰ ${new Date(booking.endTime).toLocaleString()}</p>
-        <button onclick="cancelBooking('${booking._id}')" class="btn btn-danger">Cancel</button>
-      </div>
-    `).join('');
+    const bookingsHTML = bookings.map(booking => {
+      const startDate = new Date(booking.startTime);
+      const endDate = new Date(booking.endTime);
+      
+      return `
+        <div class="booking-card">
+          <h3> Room ${booking.room_id.roomNumber}</h3>
+          <p><strong>Type:</strong> ${booking.room_id.type}</p>
+          <p><strong> Date:</strong> ${startDate.toLocaleDateString()}</p>
+          <p><strong> Time:</strong> ${startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+          <p><strong> Duration:</strong> ${Math.round((endDate - startDate) / (1000 * 60 * 60) * 10) / 10} hours</p>
+          <button onclick="cancelBooking('${booking._id}')" class="btn btn-danger">Cancel Booking</button>
+        </div>
+      `;
+    }).join('');
 
-    contentArea.innerHTML = `
-      <h3>My Bookings</h3>
+    bookingsList.innerHTML = `
       <div class="bookings-grid">
         ${bookingsHTML}
       </div>
     `;
   } catch (error) {
-    contentArea.innerHTML = `<p class="error">Error loading bookings: ${error.message}</p>`;
+    bookingsList.innerHTML = `<p class="error">Error loading bookings: ${error.message}</p>`;
   }
 }
 
-// Cancel Booking
+
 async function cancelBooking(bookingId) {
   if (!confirm('Are you sure you want to cancel this booking?')) {
     return;
@@ -124,7 +138,7 @@ async function cancelBooking(bookingId) {
   try {
     await API.bookings.cancel(bookingId);
     alert('Booking cancelled successfully!');
-    showMyBookings(); // Refresh list
+    showMyBookings(); 
   } catch (error) {
     alert('Error cancelling booking: ' + error.message);
   }
