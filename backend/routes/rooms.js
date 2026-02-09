@@ -19,7 +19,6 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-// GET specific room by ID
 router.get('/:roomId', authenticate, async (req, res) => {
   try {
     const room = await Room.findById(req.params.roomId);
@@ -32,12 +31,10 @@ router.get('/:roomId', authenticate, async (req, res) => {
   }
 });
 
-// CREATE room (admin only)
 router.post('/', authenticate, isAdmin, async (req, res) => {
   try {
     const { roomNumber, capacity, type, features } = req.body;
 
-    // Check if room already exists
     const existing = await Room.findOne({ roomNumber });
     if (existing) {
       return res.status(400).json({ message: 'Room number already exists' });
@@ -57,7 +54,6 @@ router.post('/', authenticate, isAdmin, async (req, res) => {
   }
 });
 
-// UPDATE room (admin only)
 router.put('/:roomId', authenticate, isAdmin, async (req, res) => {
   try {
     const { roomNumber, capacity, type, features } = req.body;
@@ -78,7 +74,6 @@ router.put('/:roomId', authenticate, isAdmin, async (req, res) => {
   }
 });
 
-// DELETE room (admin only)
 router.delete('/:roomId', authenticate, isAdmin, async (req, res) => {
   try {
     await Room.findByIdAndDelete(req.params.roomId);

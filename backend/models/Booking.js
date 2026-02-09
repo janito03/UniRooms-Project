@@ -31,7 +31,7 @@ const bookingSchema = new mongoose.Schema({
   }
 });
 
-// Indexes for fast conflict checking
+
 bookingSchema.index({ room_id: 1, startTime: 1, endTime: 1 });
 bookingSchema.index({ user_id: 1, startTime: -1 });
 

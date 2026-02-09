@@ -1,5 +1,3 @@
-// Admin Panel
-
 function showAdminPanel() {
   const user = getCurrentUser();
   
@@ -12,7 +10,7 @@ function showAdminPanel() {
   
   contentArea.innerHTML = `
     <div class="admin-panel">
-      <h2>⚙️ Admin Panel</h2>
+      <h2>Admin Panel</h2>
       
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="showUsersManagement()">👥 Users</button>
@@ -29,7 +27,7 @@ function showAdminPanel() {
   showUsersManagement();
 }
 
-// Users Management
+
 function showUsersManagement() {
   updateAdminTabs(0);
   
@@ -49,7 +47,7 @@ function showUsersManagement() {
   `;
 }
 
-// Rooms Management
+
 function showRoomsManagement() {
   updateAdminTabs(1);
   
@@ -68,7 +66,7 @@ function showRoomsManagement() {
   `;
 }
 
-// Add Room Form
+
 function showAddRoomForm() {
   const list = document.getElementById('rooms-management-list');
   
@@ -113,14 +111,14 @@ function showAddRoomForm() {
   `;
 }
 
-// Handle Add Room (needs rooms API endpoint)
+
 async function handleAddRoom(event) {
   event.preventDefault();
   
   const errorDiv = document.getElementById('room-error');
   const successDiv = document.getElementById('room-success');
   
-  errorDiv.textContent = '⚠️ Rooms API endpoint needed in backend!';
+  errorDiv.textContent = 'Rooms API endpoint needed in backend!';
   successDiv.textContent = '';
   
   // This will work once you add the rooms API endpoint
@@ -157,7 +155,7 @@ function showScheduleManagement() {
   `;
 }
 
-// Add Schedule Form
+
 function showAddScheduleForm() {
   const list = document.getElementById('schedule-management-list');
   
@@ -211,14 +209,14 @@ function showAddScheduleForm() {
         </div>
 
         <div class="info-message">
-          ⚠️ Schedule API endpoint needed in backend to save this!
+           Schedule API endpoint needed in backend to save this!
         </div>
       </form>
     </div>
   `;
 }
 
-// Helper: Update admin tabs
+
 function updateAdminTabs(activeIndex) {
   const tabs = document.querySelectorAll('.admin-tab');
   tabs.forEach((tab, index) => {

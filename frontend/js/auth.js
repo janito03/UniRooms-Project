@@ -1,4 +1,3 @@
-// Render Login Page
 function renderLogin() {
   const app = document.getElementById('app');
   
@@ -23,11 +22,9 @@ function renderLogin() {
   showLoginForm();
 }
 
-// Show Login Form
 function showLoginForm() {
   const container = document.getElementById('auth-form-container');
   
-  // Update tabs
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.tab')[0].classList.add('active');
 
@@ -50,7 +47,6 @@ function showLoginForm() {
   `;
 }
 
-// Show Register Form
 function showRegisterForm() {
   const container = document.getElementById('auth-form-container');
   
@@ -92,7 +88,6 @@ function showRegisterForm() {
   `;
 }
 
-// Handle Login
 async function handleLogin(event) {
   event.preventDefault();
 
@@ -103,18 +98,15 @@ async function handleLogin(event) {
   try {
     const response = await API.auth.login(username, password);
     
-    // Save token and user info
     localStorage.setItem('token', response.token);
     localStorage.setItem('user', JSON.stringify(response.user));
 
-    // Redirect to dashboard
     window.location.reload();
   } catch (error) {
     errorDiv.textContent = error.message || 'Login failed';
   }
 }
 
-// Handle Register
 async function handleRegister(event) {
   event.preventDefault();
 
@@ -132,7 +124,6 @@ async function handleRegister(event) {
     successDiv.textContent = 'Registration successful! Please login.';
     errorDiv.textContent = '';
     
-    // Switch to login form after 2 seconds
     setTimeout(showLoginForm, 2000);
   } catch (error) {
     errorDiv.textContent = error.message || 'Registration failed';

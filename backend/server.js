@@ -12,11 +12,11 @@ app.use(express.json());
 
 const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/bookings');
-const roomRoutes = require('./routes/rooms');  // ADD THIS
+const roomRoutes = require('./routes/rooms');  
 
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
-app.use('/api/rooms', roomRoutes);  // ADD THIS
+app.use('/api/rooms', roomRoutes);  
 
 app.get('/', (req, res) => {
   res.json({ 
@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       bookings: '/api/bookings',
-      rooms: '/api/rooms'  // ADD THIS
+      rooms: '/api/rooms' 
     }
   });
 });

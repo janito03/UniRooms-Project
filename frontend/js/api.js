@@ -41,7 +41,7 @@ const API = {
     }
   },
 
-  // ADD ROOMS API
+  
   rooms: {
     getAll: async (filters = {}) => {
       const query = new URLSearchParams(filters).toString();

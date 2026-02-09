@@ -173,17 +173,15 @@
       resultDiv.innerHTML = '⏳ Setting up database... Please wait...';
 
       try {
-        // Step 1: Create users
         resultDiv.innerHTML += '<br>📝 Creating users...';
         
         await createUser('admin', 'admin@uni.com', 'admin123', 'admin');
         await createUser('teacher', 'teacher@uni.com', 'teacher123', 'teacher');
         await createUser('student', 'student@uni.com', 'student123', 'student');
 
-        resultDiv.innerHTML += '<br>✅ Users created!';
+        resultDiv.innerHTML += '<br> Users created!';
 
-        // Step 2: Login as admin to get token
-        resultDiv.innerHTML += '<br>🔑 Logging in as admin...';
+        resultDiv.innerHTML += '<br> Logging in as admin...';
         const loginResponse = await fetch(`${API_URL}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -197,10 +195,10 @@
         const loginData = await loginResponse.json();
         const token = loginData.token;
 
-        resultDiv.innerHTML += '<br>✅ Logged in!';
+        resultDiv.innerHTML += '<br> Logged in!';
 
         // Step 3: Create rooms
-        resultDiv.innerHTML += '<br>🏛️ Creating rooms...';
+        resultDiv.innerHTML += '<br> Creating rooms...';
 
         const rooms = [
           { roomNumber: "101", capacity: 30, type: "normal", features: ["Projector", "Whiteboard"] },
@@ -214,19 +212,19 @@
           await createRoom(room, token);
         }
 
-        resultDiv.innerHTML += '<br>✅ Rooms created!';
+        resultDiv.innerHTML += '<br> Rooms created!';
 
         // Success!
         resultDiv.className = 'success';
         resultDiv.innerHTML = `
-          <h3>🎉 Setup Complete!</h3>
-          <p><strong>✅ 3 users created:</strong></p>
+          <h3> Setup Complete!</h3>
+          <p><strong> 3 users created:</strong></p>
           <ul>
             <li>Admin: admin / admin123</li>
             <li>Teacher: teacher / teacher123</li>
             <li>Student: student / student123</li>
           </ul>
-          <p><strong>✅ 5 rooms created:</strong></p>
+          <p><strong> 5 rooms created:</strong></p>
           <ul>
             <li>Room 101 (Normal, 30 people)</li>
             <li>Room 102 (Lab, 25 people)</li>
@@ -239,17 +237,17 @@
           </p>
         `;
 
-        // Add button to go to main app
+     
         const goButton = document.createElement('button');
         goButton.className = 'btn btn-success';
-        goButton.textContent = '➡️ Go to Main App';
+        goButton.textContent = ' Go to Main App';
         goButton.onclick = () => window.location.href = 'index.html';
         resultDiv.appendChild(goButton);
 
       } catch (error) {
         resultDiv.className = 'error';
         resultDiv.innerHTML = `
-          <h3>❌ Setup Failed</h3>
+          <h3> Setup Failed</h3>
           <p><strong>Error:</strong> ${error.message}</p>
           <p>Make sure your backend server is running!</p>
           <p>Run: <code>node server.js</code> in the backend folder</p>
@@ -267,7 +265,6 @@
 
         if (!response.ok) {
           const error = await response.json();
-          // If user already exists, that's OK
           if (error.message.includes('already exists')) {
             console.log(`User ${username} already exists - skipping`);
             return;
@@ -275,7 +272,6 @@
           throw new Error(error.message);
         }
       } catch (error) {
-        // If user exists, continue
         if (error.message.includes('already exists')) {
           return;
         }
@@ -295,7 +291,6 @@
 
       if (!response.ok) {
         const error = await response.json();
-        // If room already exists, that's OK
         if (error.message.includes('already exists')) {
           console.log(`Room ${roomData.roomNumber} already exists - skipping`);
           return;

@@ -17,7 +17,6 @@ function renderDashboard() {
   const user = getCurrentUser();
   const app = document.getElementById('app');
 
-  // Get role emoji
   const roleEmojis = {
     student: '🎓',
     teacher: '👨‍🏫',

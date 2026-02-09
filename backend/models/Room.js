@@ -23,7 +23,7 @@ const roomSchema = new mongoose.Schema({
   }
 });
 
-// Index for fast searching
+
 roomSchema.index({ roomNumber: 1 });
 roomSchema.index({ type: 1, capacity: 1 });
 
