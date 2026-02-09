@@ -1,42 +1,40 @@
-// Rooms functionality - FIXED VERSION
-
 let allRooms = [];
 
-// Show Rooms/Schedule Page
 async function showRooms() {
   const contentArea = document.getElementById('content-area');
+  updateActiveNav(1);
   
   contentArea.innerHTML = `
-    <div class="rooms-section">
-      <h2> Available Rooms</h2>
-      
-      <div class="filters">
-        <div class="filter-group">
-          <label>Room Type:</label>
-          <select id="filter-type" onchange="filterRooms()">
-            <option value="">All Types</option>
-            <option value="normal">Normal</option>
-            <option value="lab">Lab</option>
-            <option value="lecture_hall">Lecture Hall</option>
-            <option value="conference">Conference</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label>Search Room:</label>
-          <input type="text" id="search-room" placeholder="Room number..." onkeyup="filterRooms()">
-        </div>
-
-        <button class="btn btn-primary" onclick="showBookingForm()">New Booking</button>
-      </div>
-
-      <div id="rooms-list" class="rooms-grid">
-        <p>Loading rooms...</p>
-      </div>
+<div class="rooms-section">
+<h2> Available Rooms</h2>
+  <div class="filters">
+    <div class="filter-group">
+      <label> Room Type:</label>
+      <select id="filter-type" onchange="filterRooms()">
+        <option value="">All Types</option>
+        <option value="normal">Normal Room</option>
+        <option value="lab">Computer Lab</option>
+        <option value="lecture_hall">Lecture Hall</option>
+        <option value="conference">Conference Room</option>
+      </select>
     </div>
-  `;
 
-  await loadRooms();
+    <div class="filter-group">
+      <label> Search Room:</label>
+      <input type="text" id="search-room" placeholder="Enter room number..." onkeyup="filterRooms()">
+    </div>
+
+    <button class="btn btn-primary" onclick="showBookingForm()">
+       New Booking
+    </button>
+  </div>
+
+  <div id="rooms-list" class="rooms-grid">
+    <p class="loading">Loading available rooms...</p>
+  </div>
+</div>
+`;
+await loadRooms();
 }
 
 
