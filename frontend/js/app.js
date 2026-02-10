@@ -114,6 +114,7 @@ async function showMyBookings() {
       <button class="btn btn-primary" onclick="showRooms()" style="margin-bottom: 30px;">
         Create New Booking
       </button>
+      <div id="notifications-panel"></div>
       <div id="bookings-list"></div>
     </div>
   `;
@@ -137,6 +138,33 @@ async function showMyBookings() {
       return;
     }
 
+    const notificationsPanel = document.getElementById('notifications-panel');
+    const overriddenBookings = bookings.filter(b => b.status === 'overridden');
+
+    if (overriddenBookings.length > 0) {
+      const notificationsHtml = overriddenBookings.map(b => {
+        const startDate = new Date(b.startTime);
+        const endDate = new Date(b.endTime);
+        const byUser = b.overriddenBy ? `${b.overriddenBy.username} (${b.overriddenBy.role})` : 'higher priority user';
+        return `
+          <div class="notification-card">
+            <strong>⚠️ Booking overridden</strong>
+            <div>Room ${b.room_id.roomNumber} on ${startDate.toLocaleDateString()} ${startDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})} - ${endDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</div>
+            <div>Overridden by: ${byUser}</div>
+          </div>
+        `;
+      }).join('');
+
+      notificationsPanel.innerHTML = `
+        <div class="notifications-panel">
+          <h3>🔔 Notifications</h3>
+          ${notificationsHtml}
+        </div>
+      `;
+    } else {
+      notificationsPanel.innerHTML = '';
+    }
+
     const bookingsHTML = bookings.map(booking => {
       const startDate = new Date(booking.startTime);
       const endDate = new Date(booking.endTime);
@@ -146,20 +174,30 @@ async function showMyBookings() {
       const isToday = startDate.toDateString() === today.toDateString();
       const isFuture = startDate > today;
       
+      const statusBadge = booking.status === 'overridden'
+        ? '<span class="status-badge overridden">OVERRIDDEN</span>'
+        : '';
+
+      const overriddenInfo = booking.status === 'overridden'
+        ? `<p class="overridden-text">⚠️ This booking was overridden by ${booking.overriddenBy ? booking.overriddenBy.username : 'a higher priority user'}.</p>`
+        : '';
+
       return `
         <div class="booking-card">
           <h3>
              Room ${booking.room_id.roomNumber}
-            ${isToday ? '<span style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 12px; border-radius: 8px; font-size: 0.6em; margin-left: 8px;">TODAY</span>' : ''}
-            ${isFuture ? '<span style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 4px 12px; border-radius: 8px; font-size: 0.6em; margin-left: 8px;">UPCOMING</span>' : ''}
+            ${isToday ? '<span class="status-badge today">TODAY</span>' : ''}
+            ${isFuture ? '<span class="status-badge upcoming">UPCOMING</span>' : ''}
+            ${statusBadge}
           </h3>
           <p><strong>Type:</strong> ${booking.room_id.type.replace('_', ' ').toUpperCase()}</p>
           <p> <strong>Date:</strong> ${startDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
           <p> <strong>Time:</strong> ${startDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})} - ${endDate.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</p>
           <p><strong>Duration:</strong> ${duration} hour${duration !== 1 ? 's' : ''}</p>
-          <button onclick="cancelBooking('${booking._id}')" class="btn btn-danger">
-            Cancel Booking
-          </button>
+          ${overriddenInfo}
+          ${booking.status === 'overridden'
+            ? '<button class="btn btn-secondary" disabled>Overridden</button>'
+            : `<button onclick="cancelBooking('${booking._id}')" class="btn btn-danger">Cancel Booking</button>`}
         </div>
       `;
     }).join('');
