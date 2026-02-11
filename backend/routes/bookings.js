@@ -17,6 +17,13 @@ router.post("/", authenticate, async (req, res) => {
     const start = new Date(startTime);
     const end = new Date(endTime);
 
+    const now = new Date();
+    if (end <= now) {
+      return res.status(400).json({
+        message: "Cannot book time slots in the past",
+      });
+    }
+
     if (userRole === "student") {
       const durationHours = (end - start) / (1000 * 60 * 60);
       if (durationHours > 2) {

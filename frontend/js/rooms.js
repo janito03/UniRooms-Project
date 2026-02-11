@@ -223,6 +223,12 @@ async function handleCreateBooking(event) {
     `${date}T${String(endHour).padStart(2, "0")}:00:00`,
   );
 
+  const now = new Date();
+  if (endDateTime <= now) {
+    errorDiv.textContent = "You can't book time slots in the past.";
+    return;
+  }
+
   try {
     const result = await API.bookings.create(
       roomId,
@@ -288,6 +294,8 @@ function displayTimeSlots(bookings, baseSchedules, date) {
 
   const user = getCurrentUser();
 
+  const now = new Date();
+
   hours.forEach((hour) => {
     const slotStart = new Date(
       `${date}T${String(hour).padStart(2, "0")}:00:00`,
@@ -295,6 +303,15 @@ function displayTimeSlots(bookings, baseSchedules, date) {
     const slotEnd = new Date(
       `${date}T${String(hour + 1).padStart(2, "0")}:00:00`,
     );
+
+    if (slotEnd <= now) {
+      const pastHourStr = `${String(hour).padStart(2, "0")}:00 - ${String(hour + 1).padStart(2, "0")}:00`;
+      html += `<tr class="time-slot slot-blocked">
+        <td class="time-cell"><strong>${pastHourStr}</strong></td>
+        <td class="status-cell">⏳ Past time</td>
+      </tr>`;
+      return;
+    }
 
     const status = getSlotStatus(slotStart, slotEnd, bookings, baseSchedules);
     const hourStr = `${String(hour).padStart(2, "0")}:00 - ${String(hour + 1).padStart(2, "0")}:00`;

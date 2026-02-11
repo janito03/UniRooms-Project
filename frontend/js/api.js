@@ -39,6 +39,12 @@ const API = {
         body: JSON.stringify({ username, email, password, role }),
       });
     },
+
+    deleteUser: async (userId) => {
+      return API.request(`/auth/users/${userId}`, {
+        method: "DELETE",
+      });
+    },
   },
 
   rooms: {

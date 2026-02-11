@@ -4,16 +4,18 @@
 
 // Main function to render the Admin Panel
 function showAdminPanel() {
-    const user = getCurrentUser();
-    
-    if (user.role !== 'admin') {
-        alert('Access denied. Admin only.');
-        return;
-    }
+  const user = getCurrentUser();
 
-    const contentArea = document.getElementById('content-area');
-    
-    contentArea.innerHTML = `
+  if (user.role !== "admin") {
+    alert("Access denied. Admin only.");
+    return;
+  }
+
+  const contentArea = document.getElementById("content-area");
+
+  updateActiveNav(3);
+
+  contentArea.innerHTML = `
         <div class="admin-panel">
             <h2>Admin Panel</h2>
             
@@ -27,21 +29,21 @@ function showAdminPanel() {
         </div>
     `;
 
-    showUsersManagement(); // Load users by default
+  showUsersManagement(); // Load users by default
 }
 
 // --- USER MANAGEMENT ---
 
 async function showUsersManagement() {
-    updateAdminTabs(0);
-    const adminContent = document.getElementById('admin-content');
-    adminContent.innerHTML = '<p class="loading">Loading users...</p>';
+  updateAdminTabs(0);
+  const adminContent = document.getElementById("admin-content");
+  adminContent.innerHTML = '<p class="loading">Loading users...</p>';
 
-    try {
-        // Note: Requires /api/auth/users endpoint in backend
-        const users = await API.request('/auth/users');
-        
-        let html = `
+  try {
+    // Note: Requires /api/auth/users endpoint in backend
+    const users = await API.request("/auth/users");
+
+    let html = `
             <div class="management-section">
                 <h3>User List</h3>
                 <div class="info-box">Total registered: ${users.length}</div>
@@ -51,47 +53,61 @@ async function showUsersManagement() {
                             <th>User</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th>Status</th>
                             <th>Registration Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
         `;
 
-        users.forEach(u => {
-            const date = new Date(u.createdAt).toLocaleDateString();
-            html += `
+    const currentUser = getCurrentUser();
+
+    users.forEach((u) => {
+      const date = new Date(u.createdAt).toLocaleDateString();
+      const isSelf = u._id === currentUser.id;
+      const isDisabled = u.isActive === false;
+      html += `
                 <tr>
                     <td><strong>${u.username}</strong></td>
                     <td>${u.email}</td>
                     <td><span class="status-badge upcoming">${u.role.toUpperCase()}</span></td>
+                    <td>${isDisabled ? '<span class="status-badge overridden">DISABLED</span>' : '<span class="status-badge upcoming">ACTIVE</span>'}</td>
                     <td>${date}</td>
+                    <td>
+                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" 
+                                ${isSelf || isDisabled ? "disabled" : ""}
+                                onclick="handleDisableUser('${u._id}', '${u.username}')">
+                            Disable
+                        </button>
+                    </td>
                 </tr>
             `;
-        });
+    });
 
-        html += `
+    html += `
                     </tbody>
                 </table>
             </div>
         `;
-        adminContent.innerHTML = html;
-    } catch (error) {
-        adminContent.innerHTML = `
+    adminContent.innerHTML = html;
+  } catch (error) {
+    adminContent.innerHTML = `
             <div class="error-message" style="display:block">
                 Error loading users: ${error.message}<br>
                 <small>Ensure the /api/auth/users backend endpoint is added.</small>
             </div>
         `;
-    }
+  }
 }
 
 // --- ROOM MANAGEMENT ---
 
 async function showRoomsManagement() {
-    updateAdminTabs(1);
-    const adminContent = document.getElementById('admin-content');
-    
-    adminContent.innerHTML = `
+  updateAdminTabs(1);
+  const adminContent = document.getElementById("admin-content");
+
+  adminContent.innerHTML = `
         <div class="management-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3>Room Management</h3>
@@ -103,16 +119,17 @@ async function showRoomsManagement() {
         </div>
     `;
 
-    try {
-        const rooms = await API.rooms.getAll();
-        const listContainer = document.getElementById('admin-rooms-list');
+  try {
+    const rooms = await API.rooms.getAll();
+    const listContainer = document.getElementById("admin-rooms-list");
 
-        if (rooms.length === 0) {
-            listContainer.innerHTML = '<p class="info">No rooms found in database.</p>';
-            return;
-        }
+    if (rooms.length === 0) {
+      listContainer.innerHTML =
+        '<p class="info">No rooms found in database.</p>';
+      return;
+    }
 
-        let html = `
+    let html = `
             <table class="time-slots-table">
                 <thead>
                     <tr>
@@ -126,13 +143,13 @@ async function showRoomsManagement() {
                 <tbody>
         `;
 
-        rooms.forEach(room => {
-            html += `
+    rooms.forEach((room) => {
+      html += `
                 <tr>
                     <td><strong>${room.roomNumber}</strong></td>
-                    <td>${room.type.replace('_', ' ')}</td>
+                    <td>${room.type.replace("_", " ")}</td>
                     <td>${room.capacity} seats</td>
-                    <td><small>${room.features.join(', ') || '-'}</small></td>
+                    <td><small>${room.features.join(", ") || "-"}</small></td>
                     <td>
                         <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" 
                                 onclick="handleDeleteRoom('${room._id}', '${room.roomNumber}')">
@@ -141,19 +158,20 @@ async function showRoomsManagement() {
                     </td>
                 </tr>
             `;
-        });
+    });
 
-        html += '</tbody></table>';
-        listContainer.innerHTML = html;
-    } catch (error) {
-        document.getElementById('admin-rooms-list').innerHTML = `<p class="error-message" style="display:block">Error: ${error.message}</p>`;
-    }
+    html += "</tbody></table>";
+    listContainer.innerHTML = html;
+  } catch (error) {
+    document.getElementById("admin-rooms-list").innerHTML =
+      `<p class="error-message" style="display:block">Error: ${error.message}</p>`;
+  }
 }
 
 function showAddRoomForm() {
-    const adminContent = document.getElementById('admin-content');
-    
-    adminContent.innerHTML = `
+  const adminContent = document.getElementById("admin-content");
+
+  adminContent.innerHTML = `
         <div class="management-section">
             <h3>Create New Room</h3>
             <div class="form-container">
@@ -197,43 +215,66 @@ function showAddRoomForm() {
 }
 
 async function handleAdminAddRoom(event) {
-    event.preventDefault();
-    const errorDiv = document.getElementById('room-error');
-    
-    const roomData = {
-        roomNumber: document.getElementById('room-number').value,
-        capacity: parseInt(document.getElementById('room-capacity').value),
-        type: document.getElementById('room-type').value,
-        features: document.getElementById('room-features').value.split(',').map(f => f.trim()).filter(f => f !== "")
-    };
+  event.preventDefault();
+  const errorDiv = document.getElementById("room-error");
 
-    try {
-        await API.rooms.create(roomData.roomNumber, roomData.capacity, roomData.type, roomData.features);
-        showRoomsManagement();
-    } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.style.display = 'block';
-    }
+  const roomData = {
+    roomNumber: document.getElementById("room-number").value,
+    capacity: parseInt(document.getElementById("room-capacity").value),
+    type: document.getElementById("room-type").value,
+    features: document
+      .getElementById("room-features")
+      .value.split(",")
+      .map((f) => f.trim())
+      .filter((f) => f !== ""),
+  };
+
+  try {
+    await API.rooms.create(
+      roomData.roomNumber,
+      roomData.capacity,
+      roomData.type,
+      roomData.features,
+    );
+    showRoomsManagement();
+  } catch (error) {
+    errorDiv.textContent = error.message;
+    errorDiv.style.display = "block";
+  }
 }
 
 async function handleDeleteRoom(id, number) {
-    if (!confirm(`Are you sure you want to delete room ${number}?`)) return;
+  if (!confirm(`Are you sure you want to delete room ${number}?`)) return;
 
-    try {
-        await API.rooms.delete(id);
-        showRoomsManagement();
-    } catch (error) {
-        alert('Error deleting room: ' + error.message);
-    }
+  try {
+    await API.rooms.delete(id);
+    showRoomsManagement();
+  } catch (error) {
+    alert("Error deleting room: " + error.message);
+  }
 }
 
 function updateAdminTabs(activeIndex) {
-    const tabs = document.querySelectorAll('.admin-tab');
-    tabs.forEach((tab, index) => {
-        if (index === activeIndex) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
-    });
+  const tabs = document.querySelectorAll(".admin-tab");
+  tabs.forEach((tab, index) => {
+    if (index === activeIndex) {
+      tab.classList.add("active");
+    } else {
+      tab.classList.remove("active");
+    }
+  });
+}
+
+async function handleDisableUser(userId, username) {
+  if (
+    !confirm(`Disable user ${username}? They will no longer be able to log in.`)
+  )
+    return;
+
+  try {
+    await API.auth.deleteUser(userId);
+    showUsersManagement();
+  } catch (error) {
+    alert("Error disabling user: " + error.message);
+  }
 }

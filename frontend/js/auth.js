@@ -1,6 +1,6 @@
 function renderLogin() {
-  const app = document.getElementById('app');
-  
+  const app = document.getElementById("app");
+
   app.innerHTML = `
     <div class="auth-container">
       <div class="auth-box">
@@ -23,10 +23,12 @@ function renderLogin() {
 }
 
 function showLoginForm() {
-  const container = document.getElementById('auth-form-container');
-  
-  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-  document.querySelectorAll('.tab')[0].classList.add('active');
+  const container = document.getElementById("auth-form-container");
+
+  document
+    .querySelectorAll(".tab")
+    .forEach((tab) => tab.classList.remove("active"));
+  document.querySelectorAll(".tab")[0].classList.add("active");
 
   container.innerHTML = `
     <form id="login-form" onsubmit="handleLogin(event)">
@@ -48,11 +50,13 @@ function showLoginForm() {
 }
 
 function showRegisterForm() {
-  const container = document.getElementById('auth-form-container');
-  
+  const container = document.getElementById("auth-form-container");
+
   // Update tabs
-  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-  document.querySelectorAll('.tab')[1].classList.add('active');
+  document
+    .querySelectorAll(".tab")
+    .forEach((tab) => tab.classList.remove("active"));
+  document.querySelectorAll(".tab")[1].classList.add("active");
 
   container.innerHTML = `
     <form id="register-form" onsubmit="handleRegister(event)">
@@ -76,7 +80,6 @@ function showRegisterForm() {
         <select id="register-role">
           <option value="student">Student</option>
           <option value="teacher">Teacher</option>
-          <option value="admin">Admin</option>
         </select>
       </div>
 
@@ -91,42 +94,42 @@ function showRegisterForm() {
 async function handleLogin(event) {
   event.preventDefault();
 
-  const username = document.getElementById('login-username').value;
-  const password = document.getElementById('login-password').value;
-  const errorDiv = document.getElementById('login-error');
+  const username = document.getElementById("login-username").value;
+  const password = document.getElementById("login-password").value;
+  const errorDiv = document.getElementById("login-error");
 
   try {
     const response = await API.auth.login(username, password);
-    
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('user', JSON.stringify(response.user));
+
+    localStorage.setItem("token", response.token);
+    localStorage.setItem("user", JSON.stringify(response.user));
 
     window.location.reload();
   } catch (error) {
-    errorDiv.textContent = error.message || 'Login failed';
+    errorDiv.textContent = error.message || "Login failed";
   }
 }
 
 async function handleRegister(event) {
   event.preventDefault();
 
-  const username = document.getElementById('register-username').value;
-  const email = document.getElementById('register-email').value;
-  const password = document.getElementById('register-password').value;
-  const role = document.getElementById('register-role').value;
-  
-  const errorDiv = document.getElementById('register-error');
-  const successDiv = document.getElementById('register-success');
+  const username = document.getElementById("register-username").value;
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
+  const role = document.getElementById("register-role").value;
+
+  const errorDiv = document.getElementById("register-error");
+  const successDiv = document.getElementById("register-success");
 
   try {
     await API.auth.register(username, email, password, role);
-    
-    successDiv.textContent = 'Registration successful! Please login.';
-    errorDiv.textContent = '';
-    
+
+    successDiv.textContent = "Registration successful! Please login.";
+    errorDiv.textContent = "";
+
     setTimeout(showLoginForm, 2000);
   } catch (error) {
-    errorDiv.textContent = error.message || 'Registration failed';
-    successDiv.textContent = '';
+    errorDiv.textContent = error.message || "Registration failed";
+    successDiv.textContent = "";
   }
 }
