@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authenticate, isAdmin } = require('../middleware/auth');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -73,6 +74,16 @@ router.post('/login', async (req, res) => {
         role: user.role
       }
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+router.get('/users', authenticate, isAdmin, async (req, res) => {
+  try {
+    const users = await User.find({}, '-password_hash'); 
+    res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

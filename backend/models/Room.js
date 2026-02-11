@@ -24,7 +24,6 @@ const roomSchema = new mongoose.Schema({
 });
 
 
-roomSchema.index({ roomNumber: 1 });
 roomSchema.index({ type: 1, capacity: 1 });
 
 module.exports = mongoose.model('Room', roomSchema);
