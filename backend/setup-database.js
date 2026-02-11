@@ -7,15 +7,15 @@ const Room = require("./models/Room");
 async function setupDatabase() {
   try {
     // Connect to MongoDB
-    console.log("🔌 Connecting to MongoDB Atlas...");
+    console.log("Connecting to MongoDB Atlas...");
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log("✅ Connected successfully!\n");
+    console.log("Connected successfully!\n");
 
     // Clear existing data (optional - comment out if you want to keep existing data)
-    console.log("🗑️  Clearing existing data...");
+    console.log("Clearing existing data...");
     await User.deleteMany({});
     await Room.deleteMany({});
-    console.log("✅ Existing data cleared\n");
+    console.log("Existing data cleared\n");
 
     // Create Users
     console.log("👥 Creating users...");
@@ -42,13 +42,13 @@ async function setupDatabase() {
     ];
 
     await User.insertMany(users);
-    console.log("✅ Created 3 users:");
-    console.log("   - admin (admin123)");
-    console.log("   - teacher (teacher123)");
-    console.log("   - student (student123)\n");
+    console.log("Created 3 users:");
+    console.log("- admin (admin123)");
+    console.log("- teacher (teacher123)");
+    console.log("- student (student123)\n");
 
     // Create Rooms
-    console.log("🏢 Creating rooms...");
+    console.log("Creating rooms...");
 
     const rooms = [
       {
@@ -84,23 +84,23 @@ async function setupDatabase() {
     ];
 
     await Room.insertMany(rooms);
-    console.log("✅ Created 5 rooms:");
+    console.log(" Created 5 rooms:");
     rooms.forEach((room) => {
       console.log(
         `   - Room ${room.roomNumber} (${room.type}, capacity: ${room.capacity})`,
       );
     });
 
-    console.log("\n🎉 Database setup completed successfully!");
-    console.log("\n📝 You can now login at frontend/index.html with:");
-    console.log("   Admin: admin / admin123");
-    console.log("   Teacher: teacher / teacher123");
-    console.log("   Student: student / student123");
+    console.log("\nDatabase setup completed successfully!");
+    console.log("\nYou can now login at frontend/index.html with:");
+    console.log("Admin: admin / admin123");
+    console.log("Teacher: teacher / teacher123");
+    console.log("Student: student / student123");
   } catch (error) {
-    console.error("❌ Error setting up database:", error);
+    console.error("Error setting up database:", error);
   } finally {
     await mongoose.connection.close();
-    console.log("\n🔌 Database connection closed");
+    console.log("\nDatabase connection closed");
   }
 }
 

@@ -137,7 +137,7 @@
     <p class="subtitle">One-Click Database Setup</p>
 
     <div class="step">
-      <h3>📋 What This Will Do:</h3>
+      <h3>What This Will Do:</h3>
       <ul>
         <li>Create 5 sample rooms (101, 102, 201, 202, Lab-A)</li>
         <li>Create admin user (username: <strong>admin</strong>, password: <strong>admin123</strong>)</li>
@@ -146,7 +146,7 @@
       </ul>
     </div>
 
-    <button class="btn" onclick="setupDatabase()">🚀 Setup Database Now!</button>
+    <button class="btn" onclick="setupDatabase()">Setup Database Now!</button>
 
     <div id="result"></div>
 
@@ -170,10 +170,10 @@
       const resultDiv = document.getElementById('result');
       resultDiv.style.display = 'block';
       resultDiv.className = 'loading';
-      resultDiv.innerHTML = '⏳ Setting up database... Please wait...';
+      resultDiv.innerHTML = 'Setting up database... Please wait...';
 
       try {
-        resultDiv.innerHTML += '<br>📝 Creating users...';
+        resultDiv.innerHTML += '<br>Creating users...';
         
         await createUser('admin', 'admin@uni.com', 'admin123', 'admin');
         await createUser('teacher', 'teacher@uni.com', 'teacher123', 'teacher');
