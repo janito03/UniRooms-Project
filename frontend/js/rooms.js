@@ -75,23 +75,36 @@ function displayRooms(rooms) {
     return;
   }
 
-  const roomsHTML = rooms
-    .map(
-      (room) => `
-    <div class="room-card">
-      <h3>Room ${room.roomNumber}</h3>
-      <p><strong>Type:</strong> ${room.type}</p>
-      <p><strong>Capacity:</strong> ${room.capacity} people</p>
-      <p><strong>Features:</strong> ${room.features.join(", ") || "None"}</p>
-      <button class="btn btn-primary" onclick="quickBook('${room._id}', '${room.roomNumber}')">
-        Book This Room
-      </button>
-    </div>
-  `,
-    )
-    .join("");
+  // Old implementation with innerHTML
+  // const roomsHTML = rooms
+  //   .map(
+  //     (room) => `
+  //   <div class="room-card">
+  //     <h3>Room ${room.roomNumber}</h3>
+  //     <p><strong>Type:</strong> ${room.type}</p>
+  //     <p><strong>Capacity:</strong> ${room.capacity} people</p>
+  //     <p><strong>Features:</strong> ${room.features.join(", ") || "None"}</p>
+  //     <button class="btn btn-primary" onclick="quickBook('${room._id}', '${room.roomNumber}')">
+  //       Book This Room
+  //     </button>
+  //   </div>
+  // `,
+  //   )
+  //   .join("");
+  // roomsList.innerHTML = roomsHTML;
 
-  roomsList.innerHTML = roomsHTML;
+  // New implementation with Web Component
+  roomsList.innerHTML = "";
+
+  rooms.forEach((room) => {
+    const roomCard = document.createElement("room-card");
+    roomCard.setAttribute("room-number", room.roomNumber);
+    roomCard.setAttribute("type", room.type);
+    roomCard.setAttribute("capacity", room.capacity);
+    roomCard.setAttribute("features", room.features.join(", ") || "None");
+    roomCard.setAttribute("room-id", room._id);
+    roomsList.appendChild(roomCard);
+  });
 }
 
 function filterRooms() {
