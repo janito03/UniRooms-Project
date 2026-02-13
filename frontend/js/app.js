@@ -97,9 +97,9 @@ function updateActiveNav(index) {
 
 function getRoleDescription(role) {
   const descriptions = {
-    student: '✨ You can browse available rooms and create bookings for up to 2 hours. Perfect for study sessions and group work!',
-    teacher: '⭐ You have priority access! Browse rooms, create bookings without time limits, and override student reservations when needed.',
-    admin: '🔥 Full system control! Manage users, rooms, schedules, and oversee all bookings across the platform.'
+    student: 'You can browse available rooms and create bookings for up to 2 hours. Perfect for study sessions and group work!',
+    teacher: 'You have priority access! Browse rooms, create bookings without time limits, and override student reservations when needed.',
+    admin: 'Full system control! Manage users, rooms, schedules, and oversee all bookings across the platform.'
   };
   return descriptions[role] || '';
 }
